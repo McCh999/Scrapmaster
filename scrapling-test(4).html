@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Scrapling Test — PrecisionVisa</title>
+<style>
+  body { font-family: -apple-system, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; background: #0e0e10; color: #eee; }
+  h1 { font-size: 20px; }
+  input, select { background: #17171a; border: 1px solid #333; color: #eee; padding: 8px; border-radius: 6px; margin-right: 8px; }
+  button { background: #2ecc71; border: none; padding: 8px 18px; border-radius: 6px; color: #052; font-weight: 600; cursor: pointer; }
+  button:hover { background: #27ae60; }
+  pre { background: #17171a; border: 1px solid #333; border-radius: 8px; padding: 16px; white-space: pre-wrap; word-break: break-word; margin-top: 20px; }
+  .status { font-size: 13px; color: #888; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <h1>🧪 Scrapling Test — Reddit Fetch</h1>
+  <p style="color:#888; font-size:13px;">Internal test page. Tries to fetch a subreddit search using Scrapling's Fetcher with Chrome impersonation, to see if it gets past Reddit's blocking.</p>
+
+  <div>
+    <input id="subreddit" placeholder="subreddit" value="Thailand" />
+    <input id="query" placeholder="search query" value="visa" />
+    <button onclick="runTest()">Run Test</button>
+  </div>
+
+  <div class="status" id="status"></div>
+  <pre id="output">Results will appear here...</pre>
+
+  <script>
+    async function runTest() {
+      const subreddit = document.getElementById('subreddit').value || 'Thailand';
+      const query = document.getElementById('query').value || 'visa';
+      const status = document.getElementById('status');
+      const output = document.getElementById('output');
+
+      status.textContent = 'Running...';
+      output.textContent = '';
+
+      try {
+        const res = await fetch(`/api/test_scrapling?subreddit=${encodeURIComponent(subreddit)}&q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        output.textContent = JSON.stringify(data, null, 2);
+        status.textContent = `Done — HTTP ${res.status}`;
+      } catch (err) {
+        output.textContent = String(err);
+        status.textContent = 'Request failed';
+      }
+    }
+  </script>
+</body>
+</html>
