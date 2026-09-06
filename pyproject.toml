@@ -127,4 +127,5 @@ pythonVersion = "3.10"
 typeCheckingMode = "basic"
 include = ["scrapling"]
 ignore = ["tests", "benchmarks.py"]
-[tool.vercel] entrypoint = "api/test-scrapling.py"
+[tool.vercel]
+entrypoint = "api/test-scrapling.py"
