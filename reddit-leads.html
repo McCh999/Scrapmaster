@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Reddit Visa Leads — PrecisionVisa</title>
+<style>
+  body { font-family: -apple-system, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; background: #0e0e10; color: #eee; }
+  h1 { font-size: 22px; }
+  .lead { border: 1px solid #333; border-radius: 8px; padding: 16px; margin-bottom: 14px; background: #17171a; }
+  .country { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 12px; background: #2a2a2e; color: #9cf; margin-bottom: 8px; }
+  .title { font-size: 16px; font-weight: 600; margin: 6px 0; }
+  .title a { color: #fff; text-decoration: none; }
+  .title a:hover { text-decoration: underline; }
+  .meta { font-size: 12px; color: #888; margin-bottom: 8px; }
+  .snippet { font-size: 13px; color: #ccc; margin-bottom: 10px; white-space: pre-wrap; }
+  button { background: #2ecc71; border: none; padding: 6px 14px; border-radius: 6px; color: #052; font-weight: 600; cursor: pointer; }
+  button:hover { background: #27ae60; }
+  #empty { color: #888; text-align: center; margin-top: 60px; }
+</style>
+</head>
+<body>
+  <h1>🔎 Reddit Visa Leads</h1>
+  <p style="color:#888; font-size:13px;">Thailand · Dubai/UAE · Sweden — updated automatically. Click a title to open the Reddit thread and reply manually, then mark it done.</p>
+
+  <div id="leads"></div>
+  <div id="empty" style="display:none;">No unanswered leads right now 🎉</div>
+
+  <script>
+    async function loadLeads() {
+      const res = await fetch('/api/reddit-leads');
+      const leads = await res.json();
+      const container = document.getElementById('leads');
+      const empty = document.getElementById('empty');
+      container.innerHTML = '';
+
+      if (!leads || leads.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      leads.forEach(lead => {
+        const div = document.createElement('div');
+        div.className = 'lead';
+        div.innerHTML = `
+          <span class="country">${lead.country}</span>
+          <div class="title"><a href="${lead.url}" target="_blank" rel="noopener">${lead.title}</a></div>
+          <div class="meta">r/${lead.target_subreddit} · u/${lead.author} · ${new Date(lead.created_utc).toLocaleString()} · ${lead.num_comments} comments</div>
+          <div class="snippet">${(lead.selftext || '').slice(0, 250)}</div>
+          <button data-id="${lead.id}">Mark as responded</button>
+        `;
+        div.querySelector('button').addEventListener('click', async (e) => {
+          const id = e.target.getAttribute('data-id');
+          e.target.disabled = true;
+          e.target.textContent = 'Saving...';
+          await fetch('/api/reddit-leads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id })
+          });
+          div.remove();
+        });
+        container.appendChild(div);
+      });
+    }
+
+    loadLeads();
+  </script>
+</body>
+</html>
